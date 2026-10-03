@@ -1,0 +1,84 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>portrait local</title>
+<style>
+  :root{--bg:#fafaf8;--fg:#1f1f1f;--muted:#777;--line:#ddd;--acc:#2f6fed}
+  body{font:15px/1.65 -apple-system,"Pretendard","Apple SD Gothic Neo",system-ui,sans-serif;background:var(--bg);color:var(--fg);max-width:1000px;margin:0 auto;padding:20px 16px}
+  h1{font-size:20px;margin:0 0 4px}h1 small{font-weight:400;color:var(--muted);font-size:13px}
+  .row{display:flex;gap:16px;flex-wrap:wrap}.row>*{flex:1;min-width:280px}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
+  select,button,input[type=file],textarea{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:#fff}
+  textarea{width:100%;height:70px;box-sizing:border-box;resize:vertical}
+  button.primary{background:var(--acc);color:#fff;border-color:var(--acc);padding:6px 22px;cursor:pointer}button:disabled{opacity:.5}
+  #status,#stages{color:var(--muted);font-size:13px}#stages{min-height:1.4em;margin:6px 0}#stages b{color:var(--fg)}
+  img,video{max-width:100%;border-radius:8px;border:1px solid var(--line);background:#000}
+  #preview{max-height:360px;background:#fff}
+  pre{white-space:pre-wrap;background:#f1f1ee;padding:10px;border-radius:6px;font-size:12px;max-height:160px;overflow:auto}
+  .note{font-size:13px;color:var(--muted)}
+  #runs{font-size:13px}#runs li{cursor:pointer;padding:3px 0;list-style:none}#runs li:hover{color:var(--acc)}
+  details{margin-top:14px}summary{cursor:pointer;color:var(--muted);font-size:13px}
+</style>
+
+<h1>portrait local <small>— 사진 한 장을 말하고 표정 짓게 (LivePortrait, 전부 로컬)</small></h1>
+<div id="stages"></div>
+<div class="row">
+  <div>
+    <div class="bar"><input type="file" id="photo" accept=".jpg,.jpeg,.png"></div>
+    <img id="preview" hidden>
+    <div class="note">정면·단일 인물·얼굴이 크게 나온 사진이 잘 됩니다.</div>
+  </div>
+  <div>
+    <div class="bar">
+      <label>표정 <select id="template"></select></label>
+      <label class="note">또는 내 영상 <input type="file" id="driving" accept=".mp4,.mov,.pkl"></label>
+    </div>
+    <textarea id="text" placeholder="대사 (선택, TTS 서버가 있을 때만 음성이 붙습니다. 입모양은 대사와 맞지 않습니다)"></textarea>
+    <div class="bar"><button id="go" class="primary">생성</button><span id="status"></span></div>
+    <video id="out" controls hidden></video>
+    <div id="dl"></div>
+  </div>
+</div>
+<details><summary>로그</summary><pre id="log"></pre></details>
+<details><summary>이전 결과</summary><ul id="runs"></ul></details>
+
+<script>
+const $ = id => document.getElementById(id);
+const TTS = %TTS%;
+fetch('/api/templates').then(r => r.json()).then(ts => $('template').innerHTML = ts.map(t => `<option value="${t.name}">${t.label}</option>`).join(''));
+if (!TTS) $('text').placeholder = '대사 (TTS_BASE_URL 미설정 → 무음 영상)';
+$('photo').onchange = () => { const f = $('photo').files[0]; if (f) { $('preview').src = URL.createObjectURL(f); $('preview').hidden = false; } };
+const b64 = f => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result.split(',')[1]); r.onerror = no; r.readAsDataURL(f); });
+function show(j) { $('out').src = `/api/runs/${j.run_id}/final.mp4`; $('out').hidden = false; $('dl').innerHTML = `<a href="/api/runs/${j.run_id}/final.mp4" download>⬇ ${j.run_id}.mp4</a> · ${j.label}${j.audio ? ' · 음성 포함' : ''} · ${j.device}`; }
+async function loadRuns() {
+  const rs = await fetch('/api/runs').then(r => r.json());
+  $('runs').innerHTML = rs.map(r => `<li data-id="${r.run_id}">${r.ts} · ${r.label} · ${r.text ? '"' + r.text.slice(0, 20) + '"' : '무음'}</li>`).join('') || '<li>없음</li>';
+  $('runs').querySelectorAll('li[data-id]').forEach(li => li.onclick = () => show(rs.find(r => r.run_id === li.dataset.id)));
+}
+loadRuns();
+$('go').onclick = async () => {
+  const f = $('photo').files[0]; if (!f) { $('status').textContent = '사진을 고르세요'; return; }
+  $('go').disabled = true; $('out').hidden = true; $('dl').innerHTML = ''; $('log').textContent = ''; $('stages').textContent = '';
+  $('status').textContent = '생성 중 — GPU 없으면 수 분 걸립니다'; const t0 = Date.now();
+  try {
+    const body = { photo_name: f.name, photo_b64: await b64(f), template: $('template').value, text: $('text').value };
+    const d = $('driving').files[0]; if (d) { body.driving_name = d.name; body.driving_b64 = await b64(d); }
+    const r = await fetch('/api/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const reader = r.body.getReader(), dec = new TextDecoder(); let buf = '';
+    while (true) {
+      const { value, done } = await reader.read(); if (done) break;
+      buf += dec.decode(value, { stream: true }); let i;
+      while ((i = buf.indexOf('\n\n')) >= 0) {
+        const line = buf.slice(0, i); buf = buf.slice(i + 2); if (!line.startsWith('data: ')) continue;
+        const ev = JSON.parse(line.slice(6));
+        if (ev.stage) $('stages').innerHTML += `<b>${ev.stage}</b> ${ev.msg} · `;
+        if (ev.log) { $('log').textContent += ev.log + '\n'; $('log').scrollTop = 1e9; }
+        if (ev.error) throw new Error(ev.error);
+        if (ev.done) { show(ev.done); loadRuns(); }
+      }
+    }
+    $('status').textContent = `완료 ${((Date.now() - t0) / 1000).toFixed(0)}초`;
+  } catch (e) { $('status').textContent = '오류: ' + e.message; }
+  $('go').disabled = false;
+};
+</script>
