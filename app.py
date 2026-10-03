@@ -40,15 +40,23 @@ def templates():
     return [{"name": n, "label": l} for n, l in LABELS.items() if os.path.exists(os.path.join(TPL, n + ".pkl"))]
 
 
+_DEV = None
+
+
 def device():
+    """torch 서브프로세스 탐지는 1회만 (매 호출 수 초 걸림)."""
+    global _DEV
     if DEVICE != "auto":
         return DEVICE
+    if _DEV:
+        return _DEV
     try:
         out = subprocess.run([PY, "-c", "import torch;print('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')"],
                              capture_output=True, text=True, timeout=120).stdout.strip()
-        return out or "cpu"
+        _DEV = out or "cpu"
     except Exception:
-        return "cpu"
+        _DEV = "cpu"
+    return _DEV
 
 
 def run_inference(photo, driving, out_dir, emit):
@@ -145,6 +153,8 @@ class H(BaseHTTPRequestHandler):
         except Exception as e: self._send({"error": f"{type(e).__name__}: {e}"}, code=500)
 
     def do_POST(self):
+        if self.path != "/api/run":
+            return self._send({"error": "not found"}, code=404)
         req = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         up = os.path.join(WS, "_upload"); os.makedirs(up, exist_ok=True)
         def save(key, name_key, allowed):
