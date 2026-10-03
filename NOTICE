@@ -1,0 +1,12 @@
+portrait-local
+==============
+Wraps (does not modify) LivePortrait — https://github.com/KwaiVGI/LivePortrait (MIT, see LICENSE-LivePortrait),
+vendored at setup time into vendor/ (commit 9b294b3). Motion templates in templates/ are converted copies of
+LivePortrait's assets/examples/driving/*.pkl (motion data only, no video).
+
+Model weights (downloaded at setup into weights/, not redistributed here):
+  - LivePortrait weights (HF KwaiVGI/LivePortrait): research release by Kuaishou.
+  - InsightFace buffalo_l detection/landmark models: InsightFace states its pre-trained models are
+    for NON-COMMERCIAL RESEARCH purposes only. Internal/non-commercial use only unless cleared.
+
+Files authored here (MIT): app.py, ui.html, selftest.py, setup.sh, pack.sh, README.md
