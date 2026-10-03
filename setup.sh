@@ -36,7 +36,7 @@ if [ ! -f weights/liveportrait/base_models/spade_generator.pth ]; then
 fi
 rm -rf vendor/LivePortrait/pretrained_weights && ln -s ../../weights vendor/LivePortrait/pretrained_weights; ok "가중치 $(du -sh weights | cut -f1)"
 
-python3 selftest.py >/dev/null && ok "selftest 통과" || die "selftest 실패"
+venv/bin/python selftest.py >/dev/null && ok "selftest 통과" || die "selftest 실패"
 [ -f .server.pid ] && kill "$(cat .server.pid)" 2>/dev/null || true
 PORT=$PORT nohup python3 app.py > server.log 2>&1 & echo $! > .server.pid
 for _ in $(seq 1 60); do curl -fsS "http://localhost:$PORT/api/templates" >/dev/null 2>&1 && break; sleep 1; done
