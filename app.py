@@ -10,7 +10,7 @@ import base64, datetime, json, os, pickle, re, secrets, shutil, subprocess, sys,
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-WS, TPL = os.path.join(ROOT, "_workspace"), os.path.join(ROOT, "templates")
+WS, TPL = os.environ.get("WORKSPACE") or os.path.join(ROOT, "_workspace"), os.path.join(ROOT, "templates")  # 포털이 AGENT_DATA/<도구> 로 모아 줌
 LP = os.path.join(ROOT, "vendor", "LivePortrait")
 PY = os.path.join(ROOT, "venv", "bin", "python") if os.path.exists(os.path.join(ROOT, "venv", "bin", "python")) else os.path.join(ROOT, "venv", "Scripts", "python.exe")
 PORT = int(os.environ.get("PORT", "8770"))
