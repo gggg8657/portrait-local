@@ -45,13 +45,13 @@
 <script>
 const $ = id => document.getElementById(id);
 const TTS = %TTS%;
-fetch('/api/templates').then(r => r.json()).then(ts => $('template').innerHTML = ts.map(t => `<option value="${t.name}">${t.label}</option>`).join(''));
+fetch('api/templates').then(r => r.json()).then(ts => $('template').innerHTML = ts.map(t => `<option value="${t.name}">${t.label}</option>`).join(''));
 if (!TTS) $('text').placeholder = '대사 (TTS_BASE_URL 미설정 → 무음 영상)';
 $('photo').onchange = () => { const f = $('photo').files[0]; if (f) { $('preview').src = URL.createObjectURL(f); $('preview').hidden = false; } };
 const b64 = f => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result.split(',')[1]); r.onerror = no; r.readAsDataURL(f); });
-function show(j) { $('out').src = `/api/runs/${j.run_id}/final.mp4`; $('out').hidden = false; $('dl').innerHTML = `<a href="/api/runs/${j.run_id}/final.mp4" download>⬇ ${j.run_id}.mp4</a> · ${j.label}${j.audio ? ' · 음성 포함' : ''} · ${j.device}`; }
+function show(j) { $('out').src = `api/runs/${j.run_id}/final.mp4`; $('out').hidden = false; $('dl').innerHTML = `<a href="api/runs/${j.run_id}/final.mp4" download>⬇ ${j.run_id}.mp4</a> · ${j.label}${j.audio ? ' · 음성 포함' : ''} · ${j.device}`; }
 async function loadRuns() {
-  const rs = await fetch('/api/runs').then(r => r.json());
+  const rs = await fetch('api/runs').then(r => r.json());
   $('runs').innerHTML = rs.map(r => `<li data-id="${r.run_id}">${r.ts} · ${r.label} · ${r.text ? '"' + r.text.slice(0, 20) + '"' : '무음'}</li>`).join('') || '<li>없음</li>';
   $('runs').querySelectorAll('li[data-id]').forEach(li => li.onclick = () => show(rs.find(r => r.run_id === li.dataset.id)));
 }
@@ -63,7 +63,7 @@ $('go').onclick = async () => {
   try {
     const body = { photo_name: f.name, photo_b64: await b64(f), template: $('template').value, text: $('text').value };
     const d = $('driving').files[0]; if (d) { body.driving_name = d.name; body.driving_b64 = await b64(d); }
-    const r = await fetch('/api/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const r = await fetch('api/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const reader = r.body.getReader(), dec = new TextDecoder(); let buf = '';
     while (true) {
       const { value, done } = await reader.read(); if (done) break;
