@@ -10,3 +10,6 @@ Model weights (downloaded at setup into weights/, not redistributed here):
     for NON-COMMERCIAL RESEARCH purposes only. Internal/non-commercial use only unless cleared.
 
 Files authored here (MIT): app.py, ui.html, selftest.py, setup.sh, pack.sh, README.md
+
+This package: Copyright (c) 2026 김동주 <dongjukim.dev@gmail.com>
+화면 하단·메타데이터의 저작자 표기는 지우거나 바꾸지 마세요.
