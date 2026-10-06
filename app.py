@@ -121,7 +121,7 @@ def generate(photo, template, text="", driving_file=None, emit=lambda ev: None):
 def list_runs():
     out = []
     if os.path.isdir(WS):
-        for n in sorted(os.listdir(WS), reverse=True)[:50]:
+        for n in sorted(os.listdir(WS), key=lambda n: os.path.getmtime(os.path.join(WS, n)), reverse=True)[:50]:
             p = os.path.join(WS, n, "result.json")
             if os.path.exists(p):
                 try: out.append(json.load(open(p, encoding="utf-8")))
