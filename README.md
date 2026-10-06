@@ -22,7 +22,7 @@ python3 selftest.py                            # 가중치 없이 파이프라�
 | 환경변수 | 기본 | 설명 |
 |---|---|---|
 | `PORT` | 8770 | |
-| `DEVICE` | auto | cuda → mps → cpu 자동. 강제 지정 가능 |
+| `DEVICE` | auto | cuda → mps → cpu 자동. 강제 지정 가능. GPU 는 실행마다 여유 메모리가 가장 큰 1장을 고름(`gpu_pick.py`, `GPU_POOL` 로 후보 제한) |
 | `MAX_DIM` | 512 | 입력 사진 최대 변. 작을수록 빠름 |
 | `TTS_BASE_URL` | (없음) | OpenAI 호환 `/v1/audio/speech` 서버. 있으면 대사 음성을 영상에 합침 |
 | `TTS_VOICE` / `TTS_MODEL` | af_heart / kokoro | TTS 서버에 넘기는 voice·model |

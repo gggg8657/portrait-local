@@ -9,6 +9,8 @@ env: PORT(8770) DEVICE(auto|cuda|mps|cpu) MAX_DIM(512, 작을수록 빠름) TTS_
 import base64, datetime, json, os, pickle, re, secrets, shutil, subprocess, sys, urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+from gpu_pick import env_for, label, pick
+
 ROOT = os.path.dirname(os.path.abspath(__file__))
 WS, TPL = os.environ.get("WORKSPACE") or os.path.join(ROOT, "_workspace"), os.path.join(ROOT, "templates")  # 포털이 AGENT_DATA/<도구> 로 모아 줌
 LP = os.path.join(ROOT, "vendor", "LivePortrait")
@@ -66,7 +68,13 @@ def run_inference(photo, driving, out_dir, emit):
     if dev == "cpu":
         cmd.append("--flag-force-cpu")
     env = {**os.environ, "PYTORCH_ENABLE_MPS_FALLBACK": "1"}
-    emit({"stage": "infer", "msg": f"LivePortrait ({dev}, max_dim {MAX_DIM})"})
+    where = dev
+    if dev == "cuda":  # GPU 고정 없음 — 실행할 때마다 여유 메모리가 가장 큰 GPU 1장만 보이게 해서 띄운다
+        g = pick(4000)
+        env, where = env_for(g, env), label(g)
+        if not g:
+            cmd.append("--flag-force-cpu")
+    emit({"stage": "infer", "msg": f"LivePortrait ({where}, max_dim {MAX_DIM})"})
     p = subprocess.Popen(cmd, cwd=LP, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     tail = []
     for line in p.stdout:

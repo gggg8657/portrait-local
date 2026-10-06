@@ -6,7 +6,7 @@ V="${1:-cpu}"; STAGE="dist-offline/portrait-local-linux-x64-$V"; rm -rf "$STAGE"
 [ -f vendor/LivePortrait/inference.py ] && [ -f weights/liveportrait/base_models/spade_generator.pth ] || { echo "먼저 bash setup.sh 로 vendor/weights 를 받으세요"; exit 1; }
 IDX=(); [ "$V" = cpu ] && IDX=(--extra-index-url https://download.pytorch.org/whl/cpu) || IDX=(--extra-index-url "https://download.pytorch.org/whl/$V")
 venv/bin/pip download -q --dest "$STAGE/wheels" --platform manylinux2014_x86_64 --platform manylinux_2_17_x86_64 --python-version 3.11 --only-binary=:all: "${IDX[@]}" -r requirements.txt torch torchvision onnxruntime
-cp -r app.py ui.html selftest.py setup.sh requirements.txt README.md NOTICE LICENSE templates "$STAGE/"
+cp -r app.py gpu_pick.py ui.html selftest.py setup.sh requirements.txt README.md NOTICE LICENSE templates "$STAGE/"
 rsync -a --exclude .git vendor "$STAGE/"; rsync -a --exclude .cache weights "$STAGE/"
 cat > "$STAGE/INSTALL.md" <<'INS'
 # 폐쇄망 설치
