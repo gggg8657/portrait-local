@@ -49,7 +49,7 @@ fetch('api/templates').then(r => r.json()).then(ts => $('template').innerHTML = 
 if (!TTS) $('text').placeholder = '대사 (TTS_BASE_URL 미설정 → 무음 영상)';
 $('photo').onchange = () => { const f = $('photo').files[0]; if (f) { $('preview').src = URL.createObjectURL(f); $('preview').hidden = false; } };
 const b64 = f => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result.split(',')[1]); r.onerror = no; r.readAsDataURL(f); });
-function show(j) { $('out').src = `api/runs/${j.run_id}/final.mp4`; $('out').hidden = false; $('dl').innerHTML = `<a href="api/runs/${j.run_id}/final.mp4" download>⬇ ${j.run_id}.mp4</a> · ${j.label}${j.audio ? ' · 음성 포함' : ''} · ${j.device}`; }
+function show(j) { if (j.tts_error) $('status').textContent = '영상은 만들었지만 대사 음성은 실패: ' + j.tts_error; $('out').src = `api/runs/${j.run_id}/final.mp4`; $('out').hidden = false; $('dl').innerHTML = `<a href="api/runs/${j.run_id}/final.mp4" download>⬇ ${j.run_id}.mp4</a> · ${j.label}${j.audio ? ' · 음성 포함' : ''} · ${j.device}`; }
 async function loadRuns() {
   const rs = await fetch('api/runs').then(r => r.json());
   $('runs').innerHTML = rs.map(r => `<li data-id="${r.run_id}">${r.ts} · ${r.label} · ${r.text ? '"' + r.text.slice(0, 20) + '"' : '무음'}</li>`).join('') || '<li>없음</li>';
