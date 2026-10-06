@@ -40,3 +40,12 @@ python3 selftest.py                            # 가중치 없이 파이프라�
 - 립싱크 아님: 대사 음성은 "말하기" 표정 위에 얹힐 뿐입니다. 입모양 동기화가 필요하면 SadTalker/MuseTalk 류를 따로 붙여야 합니다.
 - 정면 단일 인물 사진이 잘 되고, 옆얼굴·안경 반사·작은 얼굴은 품질이 떨어집니다.
 - 결과는 `_workspace/<run>/final.mp4`. 출처·라이선스는 `NOTICE`.
+
+## 출처·감사 (Credits)
+
+- [LivePortrait](https://github.com/KwaiVGI/LivePortrait) (MIT, `LICENSE-LivePortrait`) — setup 때 `vendor/` 로 받아 수정 없이 씀. `templates/` 의 모션은 LivePortrait `assets/examples/driving/*.pkl` 을 변환한 것(모션 데이터만)
+- 가중치(setup 때 받음, 재배포 안 함): [KwaiVGI/LivePortrait](https://huggingface.co/KwaiVGI/LivePortrait), InsightFace buffalo_l (InsightFace 사전학습 모델은 **비상업 연구용**)
+- PyTorch, OpenCV, NumPy 등 `requirements.txt` 의 패키지 (각 라이선스)
+- 이 도구는 [agent-page-portal](https://github.com/gggg8657/agent-page-portal) 에 연결해 쓰도록 만들었습니다(단독 실행도 됨).
+
+저작권 표기·전체 목록은 `NOTICE` 를 보세요.
