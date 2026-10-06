@@ -17,7 +17,7 @@ PORT = int(os.environ.get("PORT", "8770"))
 DEVICE = os.environ.get("DEVICE", "auto")
 MAX_DIM = os.environ.get("MAX_DIM", "512")
 TTS = os.environ.get("TTS_BASE_URL", "").rstrip("/")
-TTS_VOICE, TTS_MODEL = os.environ.get("TTS_VOICE", "af_heart"), os.environ.get("TTS_MODEL", "kokoro")
+TTS_VOICE, TTS_MODEL = os.environ.get("TTS_VOICE", "KR"), os.environ.get("TTS_MODEL", "melo")
 # LivePortrait 저장소 동봉 모션 템플릿(.pkl, 영상 없이 움직임만 → 개인정보 없음) → 한국어 라벨
 LABELS = {"talking": "말하기", "laugh": "웃음", "wink": "윙크", "shy": "수줍음", "shake_face": "고개 젓기", "open_lip": "입 벌리기", "aggrieved": "억울함"}
 
@@ -100,6 +100,7 @@ def generate(photo, template, text="", driving_file=None, emit=lambda ev: None):
             raise ValueError(f"템플릿 없음: {template} (가능: {', '.join(LABELS.values())})")
     mp4 = run_inference(src, drv, d, emit)
     final, audio = os.path.join(d, "final.mp4"), False
+    tts_error = None
     if text.strip() and TTS:
         emit({"stage": "tts", "msg": "음성 합성 + 합치기 (입모양은 대사와 동기화되지 않음)"})
         try:
@@ -109,11 +110,11 @@ def generate(photo, template, text="", driving_file=None, emit=lambda ev: None):
             subprocess.run(["ffmpeg", "-v", "error", "-y", "-stream_loop", "-1", "-i", mp4, "-i", wav, "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-t", dur, final], check=True)
             audio = True
         except Exception as e:
-            emit({"log": f"TTS 건너뜀: {e}"})
+            emit({"log": f"TTS 건너뜀: {e}"}); tts_error = f"{type(e).__name__}: {e}"[:300]
     if not audio:
         shutil.copy(mp4, final)
     result = {"run_id": run_id, "template": template if not driving_file else "(업로드 영상)", "label": LABELS.get(template, template), "text": text,
-              "audio": audio, "device": device(), "ts": datetime.datetime.now().isoformat(timespec="seconds")}
+              "audio": audio, "tts_error": tts_error, "device": device(), "ts": datetime.datetime.now().isoformat(timespec="seconds")}
     json.dump(result, open(os.path.join(d, "result.json"), "w", encoding="utf-8"), ensure_ascii=False)
     return result
 
@@ -152,7 +153,7 @@ def signed(html):
 
 class H(BaseHTTPRequestHandler):
     def log_message(self, fmt, *a):
-        if "/api/run" in (a[0] if a else ""): super().log_message(fmt, *a)
+        if "/api/run" in (str(a[0]) if a else ""): super().log_message(fmt, *a)
 
     def _send(self, body, ctype="application/json", code=200):
         b = body if isinstance(body, bytes) else json.dumps(body, ensure_ascii=False).encode()
