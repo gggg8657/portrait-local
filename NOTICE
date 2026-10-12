@@ -1,15 +1,24 @@
 portrait-local
 ==============
-Wraps (does not modify) LivePortrait — https://github.com/KwaiVGI/LivePortrait (MIT, see LICENSE-LivePortrait),
-vendored at setup time into vendor/ (commit 9b294b3). Motion templates in templates/ are converted copies of
-LivePortrait's assets/examples/driving/*.pkl (motion data only, no video).
 
-Model weights (downloaded at setup into weights/, not redistributed here):
-  - LivePortrait weights (HF KwaiVGI/LivePortrait): research release by Kuaishou.
+이 저장소의 원저작물(코드·UI·문서·도구 설계 — app.py, ui.html, selftest.py, setup.sh, pack.sh, gpu_pick.py, README.md)은
+DongJu Kim(gggg8657)이 작성했다(MIT). 제3자 구성요소는 각자의 라이선스를 따르며 THIRD_PARTY_NOTICES.md 에 적었다.
+제3자 구성요소의 권리는 이 저장소의 라이선스로 바뀌지 않는다.
+
+연구·내부 시험용 프로토타입이다(배포·상업 서비스용 아님).
+
+Wraps (does not modify) LivePortrait — https://github.com/KwaiVGI/LivePortrait (MIT, Copyright (c) 2024 Kuaishou Visual
+Generation and Interaction Center; see LICENSE-LivePortrait), vendored at setup time into vendor/ (commit 9b294b3).
+Motion templates in templates/ are converted copies of LivePortrait's assets/examples/driving/*.pkl (motion data only, no video).
+
+Model weights (downloaded at setup into weights/, not in this git repository):
+  - LivePortrait weights (HF KwaiVGI/LivePortrait, model card: MIT).
   - InsightFace buffalo_l detection/landmark models: InsightFace states its pre-trained models are
     for NON-COMMERCIAL RESEARCH purposes only. Internal/non-commercial use only unless cleared.
+    https://github.com/gggg8657/portrait-local/issues/1
+  - pack.sh offline bundles DO contain weights/ (including InsightFace) — do not distribute them outside.
 
-Files authored here (MIT): app.py, ui.html, selftest.py, setup.sh, pack.sh, README.md
+사진 속 인물을 움직이게 하는 도구이므로 본인 동의 없는 사진, 사칭·허위 영상에 쓰지 마세요.
 
-This package: Copyright (c) 2026 gggg8657 <dongjukim.dev@gmail.com>
+This package: Copyright (c) 2026 DongJu Kim (gggg8657)
 화면 하단·메타데이터의 저작자 표기는 지우거나 바꾸지 마세요.

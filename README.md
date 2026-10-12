@@ -4,10 +4,12 @@
 > 인물 사진 한 장을 올리고 표정(말하기·웃음·윙크·고개 젓기 등)을 고르면 그 사람이 움직이는 mp4가 나옵니다.
 > 대사를 넣으면 로컬 TTS(kokoro 등 OpenAI 호환 서버)의 음성을 붙입니다(입모양 동기화는 아님).
 > 외부 통신 없음, 모델 630MB는 번들에 동봉. GPU 있으면 수 초, CPU/맥은 수 분.
-> **라이선스 주의**: 코드는 MIT이지만 얼굴 검출에 쓰는 InsightFace 모델은 비상업 연구용입니다. 사내 행사·연구용으로만.
+> **⚠️ 라이선스 주의 — 상업 이용·외부 배포 금지**: 코드는 MIT이지만 얼굴 검출에 쓰는 InsightFace 모델(buffalo_l)은 **비상업 연구용**입니다([#1](https://github.com/gggg8657/portrait-local/issues/1)). 이 이유로 에이전트 포털 목록에서 내렸습니다. 연구·내부 시험용으로만 쓰고, `pack.sh` 번들(가중치 포함)을 외부로 주지 마세요.
 >
 > - 이 맥(M1 Max)에서 실제 생성 확인: 16프레임 43초, 100프레임(말하기) 4분 47초.
 > - 시무식 인사말, 수상자 축하 영상, 역사 인물 사진 애니메이션 같은 데 씁니다. 본인 동의 없는 타인 사진 사용 금지.
+
+> ⚠️ 연구·내부 시험용 프로토타입입니다(배포·상업 서비스용 아님). 제3자 구성요소의 라이선스는 THIRD_PARTY_NOTICES.md 를 확인하세요.
 
 ## 실행
 
@@ -43,9 +45,13 @@ python3 selftest.py                            # 가중치 없이 파이프라�
 
 ## 출처·감사 (Credits)
 
-- [LivePortrait](https://github.com/KwaiVGI/LivePortrait) (MIT, `LICENSE-LivePortrait`) — setup 때 `vendor/` 로 받아 수정 없이 씀. `templates/` 의 모션은 LivePortrait `assets/examples/driving/*.pkl` 을 변환한 것(모션 데이터만)
-- 가중치(setup 때 받음, 재배포 안 함): [KwaiVGI/LivePortrait](https://huggingface.co/KwaiVGI/LivePortrait), InsightFace buffalo_l (InsightFace 사전학습 모델은 **비상업 연구용**)
-- PyTorch, OpenCV, NumPy 등 `requirements.txt` 의 패키지 (각 라이선스)
+- [LivePortrait](https://github.com/KwaiVGI/LivePortrait) (MIT, Kuaishou, `LICENSE-LivePortrait`) — setup 때 `vendor/` 로 받아 수정 없이 씀. `templates/` 의 모션은 LivePortrait `assets/examples/driving/*.pkl` 을 변환한 것(모션 데이터만)
+- 가중치(setup 때 받음, git 에 넣지 않음 — 단 `pack.sh` 번들에는 포함): [KwaiVGI/LivePortrait](https://huggingface.co/KwaiVGI/LivePortrait) (MIT), [InsightFace](https://github.com/deepinsight/insightface#license) buffalo_l (사전학습 모델은 **비상업 연구용** — [#1](https://github.com/gggg8657/portrait-local/issues/1)). 상업 이용 시: 얼굴 검출기를 MediaPipe(Apache-2.0) 등으로 교체해야 함(아직 구현 안 됨, #1 에 제안)
+- PyTorch, OpenCV, NumPy 등 `requirements.txt` 의 패키지 (각 라이선스), FFmpeg(시스템 설치, LGPL/GPL)
 - 이 도구는 [agent-page-portal](https://github.com/gggg8657/agent-page-portal) 에 연결해 쓰도록 만들었습니다(단독 실행도 됨).
 
-저작권 표기·전체 목록은 `NOTICE` 를 보세요.
+전체 목록·라이선스·상업 이용 여부는 `THIRD_PARTY_NOTICES.md`, 저작권 표기는 `NOTICE` 를 보세요.
+
+## 만든 사람
+
+DongJu Kim (gggg8657) — 설계·구현 (LivePortrait 본체는 Kuaishou 의 저작물)
