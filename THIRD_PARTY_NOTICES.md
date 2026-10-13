@@ -1,6 +1,6 @@
 # 제3자 구성요소 (Third-Party Notices) — portrait-local
 
-이 저장소의 원저작물(app.py, ui.html, selftest.py, setup.sh, pack.sh, gpu_pick.py, 문서)은 DongJu Kim(gggg8657)이 작성했다(`NOTICE`, `LICENSE`). 아래 제3자 구성요소는 각자의 라이선스를 따르며, 이 저장소의 MIT 라이선스로 바뀌지 않는다.
+이 저장소의 원저작물(app.py, ui.html, selftest.py, setup.sh, pack.sh, gpu_pick.py, 문서)은 DongJu Kim(gggg8657)이 작성했다(`NOTICE`, `LICENSE`). 아래 제3자 구성요소는 각자의 라이선스를 따르며, 이 저장소의 라이선스(PolyForm Noncommercial 1.0.0)로 바뀌지 않는다.
 조사 기준: 2026-10-12, 저장소의 실제 파일(`requirements.txt`, `setup.sh`, `pack.sh`, `app.py`, `templates/`)과 설치된 venv 의 패키지 메타데이터, HF 모델 카드, GitHub LICENSE.
 
 > ⚠️ **얼굴 검출 모델(InsightFace buffalo_l)은 비상업 연구용**이다. 현재 구성으로는 상업 이용·외부 배포를 하지 말 것 — [#1](https://github.com/gggg8657/portrait-local/issues/1).
